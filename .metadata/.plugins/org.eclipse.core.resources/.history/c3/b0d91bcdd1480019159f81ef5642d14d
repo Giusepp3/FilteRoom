@@ -1,0 +1,116 @@
+/* Copyright
+ * 
+ * Giuseppe Ferrara
+ * Claudio Dotani
+ * Gianfranco Foscardi
+ * Fabrizio Cappella
+ * 
+ * Progetto OpenCV per l'esame di Sistemi Multimediali
+ * 
+ * 
+ */
+
+
+
+import java.awt.FlowLayout;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.File;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+
+
+
+public class Controller {
+	
+	//legge una foto da un path e la inserisce nel label
+	public void mostraFoto(JLabel label, String path) {
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		Mat frame = Imgcodecs.imread(path);
+		System.out.println("immagine " + path + " letta");
+		
+		BufferedImage Bimg = bufferedImage(frame);
+		ImageIcon imgI = new ImageIcon(Bimg);
+		label.setIcon((Icon) imgI);
+		
+		System.out.println("Immagine inserita");
+		
+	
+	}
+	
+	
+	public void mostraFoto(JLabel label, String path, String filtro) {
+		Mat img = this.applicaFiltro(filtro, path);
+		BufferedImage Bimg = bufferedImage(img);
+		ImageIcon imgI = new ImageIcon(Bimg);
+		label.setIcon((Icon) imgI);
+		
+		System.out.println("Immagine inserita");
+	}
+	
+	public Mat applicaFiltro(String filtro, String path) {
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		Mat img = Imgcodecs.imread(path);
+		Mat frame = img;
+		
+		if(filtro.equals("Negativo")) { //filtro negativo
+			System.out.println("Applico il filtro negativo");
+			for(int i=0;i<img.rows();i++) {
+				for(int j=0;j<img.cols();j++) {
+					double[] buff = img.get(i, j);
+					for(int h=0;h<buff.length;h++) {
+						buff[h] = 255.0 - buff[h];
+					}
+					frame.put(i, j, buff);
+				}
+			}
+		
+			System.out.println("Applico inversa");
+		}
+		if(filtro.equals("Logaritmico")) {
+			System.out.println("Applico il filtro logaritmico");
+			for(int i=0;i<img.rows();i++) {
+				for(int j=0;j<img.cols();j++) {
+					double[] buff = img.get(i, j);
+					for(int h=0;h<buff.length;h++) {
+						buff[h]=3.14159265*Math.log(1+buff[h]);
+						
+					}
+					frame.put(i, j, buff);
+				}
+			}
+		}
+		if(filtro.equals("Gaussian")) Imgproc.cvtColor(img,frame, Imgproc.CV_GAUSSIAN);
+		if(filtro.equals("Blur"))Imgproc.cvtColor(img, frame, Imgproc.CV_BLUR_NO_SCALE);
+		if(filtro.equals("Rosa"))Imgproc.cvtColor(img, frame, Imgproc.COLORMAP_PINK);
+		if(filtro.equals("Laplace"))Imgproc.Laplacian(img, frame, 0);
+		if(filtro.equals("Ocean"))Imgproc.cvtColor(img, frame, Imgproc.COLORMAP_OCEAN); 
+		if(filtro.equals("Colori Caldi"))Imgproc.cvtColor(img, frame, Imgproc.COLORMAP_HOT);
+		return frame;
+		
+	}
+	
+	public Controller() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public BufferedImage bufferedImage(Mat m) {
+	    int type = BufferedImage.TYPE_BYTE_GRAY;
+	    if ( m.channels() > 1 ) {
+	        type = BufferedImage.TYPE_3BYTE_BGR;
+	    }
+	    BufferedImage image = new BufferedImage(m.cols(),m.rows(), type);
+	    m.get(0,0,((DataBufferByte)image.getRaster().getDataBuffer()).getData()); // get all the pixels
+	    return image;
+	}
+
+}

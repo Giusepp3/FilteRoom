@@ -1,0 +1,169 @@
+/* Copyright
+ * 
+ * Giuseppe Ferrara
+ * Claudio Dotani
+ * Gianfranco Foscardi
+ * Fabrizio Cappella
+ * 
+ * Progetto OpenCV per l'esame di Sistemi Multimediali
+ * 
+ * 
+ */
+
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.AbstractAction;
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+
+public class View {
+
+	private JFrame frame;
+	private String foto = new String();
+	private String filtro = new String("B-N");
+	/**
+	 * Launch the application.
+	 */
+	
+	
+	
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					View window = new View();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	public JFrame getFrame() {
+		return frame;
+	}
+
+	public void setFrame(JFrame frame) {
+		this.frame = frame;
+	}
+
+	/**
+	 * Create the application.
+	 */
+	public View() {
+		initialize();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frame = new JFrame();
+		frame.setBounds(100, 100, 947, 552);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().setLayout(null);
+		
+		JLabel lblBenvenutoInDarkroom = new JLabel("Benvenuto in Dark-Room");
+		lblBenvenutoInDarkroom.setBounds(360, 11, 170, 14);
+		frame.getContentPane().add(lblBenvenutoInDarkroom);
+		
+		JButton btnScegliUnaFoto = new JButton("Scegli una foto"); //scelgo il file
+		btnScegliUnaFoto.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("pulsante Scegli premuto");
+				JFileChooser file = new JFileChooser();
+		          file.setCurrentDirectory(new File(System.getProperty("user.home")));
+		          System.out.println("attesa selezione utente");
+		          FileNameExtensionFilter filter = new FileNameExtensionFilter("*.Images", "jpg","gif","png");
+		          file.addChoosableFileFilter(filter);
+		          int result = file.showSaveDialog(null);
+		          //file selezionato
+		          if(result == JFileChooser.APPROVE_OPTION){
+		        	  frame.getContentPane().getComponent(7).setVisible(false);
+		        	  System.out.println("logo eliminato");
+		              File selectedFile = file.getSelectedFile();
+		              String path = selectedFile.getAbsolutePath();
+		              foto = path; //salvo l'indirizzo della foto
+		              System.out.println("il path della fotoselezionata e': " + path);
+		              frame.getContentPane().getComponent(5).setVisible(false);
+		              System.out.println("Intro Rimossa");
+		              Controller controller = new Controller();
+		              JLabel lbl = new JLabel(""); //foto iniziale
+		      		  lbl.setBounds(10, 60, 430, 378);
+		      		  frame.getContentPane().add(lbl);
+		              controller.mostraFoto(lbl,path);
+		          }
+		          //nessun file selezionato
+		          else if(result == JFileChooser.CANCEL_OPTION){
+		              System.out.println("Nessun file selezionato");
+		          }
+			}
+		});
+		
+		btnScegliUnaFoto.setBounds(66, 449, 120, 23);
+		frame.getContentPane().add(btnScegliUnaFoto);
+		
+		JComboBox comboBox = new JComboBox();
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Negativo", "Gaussian", "Rainbow", "Gaussian", "Blur", "Rosa", "Laplace", "Ocean", "Colori Caldi"}));
+		comboBox.setToolTipText("");
+		comboBox.setBounds(360, 468, 170, 20);
+		frame.getContentPane().add(comboBox);
+		comboBox.addItemListener(new ItemListener() {
+
+			@Override
+			public void itemStateChanged(ItemEvent arg0) {
+				filtro = (String) comboBox.getSelectedItem();
+				System.out.println("il filtro selezionato e': " + filtro);
+				
+			}
+			
+		});
+		
+		JLabel lblScegliUnFiltro = new JLabel("Scegli un filtro da applicare");
+		lblScegliUnFiltro.setBounds(377, 443, 170, 14);
+		frame.getContentPane().add(lblScegliUnFiltro);
+		
+		JButton btnApplica = new JButton("Applica");
+		btnApplica.setBounds(708, 449, 89, 23);
+		frame.getContentPane().add(btnApplica);
+		btnApplica.addActionListener(new ActionListener() { //applica
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Controller controller = new Controller();
+				controller.mostraFoto((JLabel)frame.getContentPane().getComponent(6), foto, filtro);
+				System.out.println("foto finale mostrata");
+				
+				
+			}
+			
+			
+		});
+		
+		JLabel lblNewLabel = new JLabel(""); //foto iniziale
+		lblNewLabel.setBounds(10, 60, 430, 378);
+		frame.getContentPane().add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new JLabel(""); //foto finale
+		lblNewLabel_1.setBounds(478, 60, 430, 378);
+		frame.getContentPane().add(lblNewLabel_1);
+		
+		JLabel lblIntro = new JLabel(new ImageIcon("./grafica/logo.jpg")); //logo
+		lblIntro.setBounds(85, 54, 766, 316);
+		frame.getContentPane().add(lblIntro);
+		
+	}
+}

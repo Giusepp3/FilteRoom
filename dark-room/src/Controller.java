@@ -1,0 +1,184 @@
+/* Copyright
+ * 
+ * Giuseppe Ferrara
+ * Claudio Dotani
+ * Gianfranco Foscardi
+ * Fabrizio Cappella
+ * 
+ * Progetto OpenCV per l'esame di Sistemi Multimediali
+ * 
+ * 
+ */
+
+
+
+import java.awt.FlowLayout;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.File;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
+
+
+
+public class Controller {
+	
+	//legge una foto da un path e la inserisce nel label
+	public void mostraFoto(JLabel label, String path) {
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		Mat frame = Imgcodecs.imread(path);
+		System.out.println("immagine " + path + " letta");
+		
+		BufferedImage Bimg = bufferedImage(frame);
+		ImageIcon imgI = new ImageIcon(Bimg);
+		label.setIcon((Icon) imgI);
+		
+		System.out.println("Immagine inserita");
+		
+	
+	}
+	
+	
+	public void mostraFoto(JLabel label, String path, String filtro, String c, String var) {
+		Mat img = this.applicaFiltro(filtro, path, c, var);
+		BufferedImage Bimg = bufferedImage(img);
+		ImageIcon imgI = new ImageIcon(Bimg);
+		label.setIcon((Icon) imgI);
+		
+		System.out.println("Immagine inserita");
+	}
+	
+	public Mat applicaFiltro(String filtro, String path, String c, String var) {
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		Mat img = Imgcodecs.imread(path);
+		Mat frame = img;
+		
+		if(filtro.equals("Negativo")) { //filtro negativo
+			System.out.println("Applico il filtro negativo");
+			for(int i=0;i<img.rows();i++) {
+				for(int j=0;j<img.cols();j++) {
+					double[] buff = img.get(i, j);
+					for(int h=0;h<buff.length;h++) {
+						buff[h] = 255.0 - buff[h];
+					}
+					frame.put(i, j, buff);
+				}
+			}
+		
+			System.out.println("Applico inversa");
+		}
+		
+		if(filtro.equals("Logaritmico")) { //filtro logaritmico
+			System.out.println("Applico il filtro logaritmico");
+			//converto c in double
+			double cc = Double.parseDouble(c);
+			for(int i=0;i<img.rows();i++) {
+				for(int j=0;j<img.cols();j++) {
+					double[] buff = img.get(i, j);
+					for(int h=0;h<buff.length;h++) {
+						buff[h]=cc*Math.log(1+buff[h]);
+						if(buff[h]>255) buff[h] = 255;
+					}
+					frame.put(i, j, buff);
+				}
+			}
+		}
+		
+		if(filtro.equals("Potenza")) {//filtro potenza
+			System.out.println("Applico il filtro potenza");
+			//converto c e var in double
+			double cc = Double.parseDouble(c);
+			double gamma = Double.parseDouble(var);
+			for(int i=0;i<img.rows();i++) {
+				for(int j=0;j<img.cols();j++) {
+					double[] buff = img.get(i, j);
+					for(int h=0;h<buff.length;h++) {
+						buff[h]=cc*Math.pow(buff[h], gamma);
+						if(buff[h]>255) buff[h] = 255;
+					}
+					frame.put(i, j, buff);
+				}
+			}
+		}
+		
+		if(filtro.equals("Brightness")) { //filtro per correzione luminosità
+			System.out.println("Applico il filtro luminosita");
+			//converto var in double
+			double g = Double.parseDouble(var);
+			for(int i=0;i<img.rows();i++) {
+				for(int j=0;j<img.cols();j++) {
+					double[] buff = img.get(i, j);
+					for(int h=0;h<buff.length;h++) {
+						buff[h]=buff[h] + g;
+						if(buff[h]>255) buff[h] = 255;
+						if(buff[h]<0) buff[h] = 0;
+					}
+					frame.put(i, j, buff);
+				}
+			}
+			
+		}
+		
+		if(filtro.equals("Contrast")) {//modifico il contrasto
+			System.out.println("Applico il filtro contrasto");
+			//converto var in double
+			double m = Double.parseDouble(var);
+			for(int i=0;i<img.rows();i++) {
+				for(int j=0;j<img.cols();j++) {
+					double[] buff = img.get(i, j);
+					for(int h=0;h<buff.length;h++) {
+						buff[h]= m*(buff[h]-127) +127;
+						if(buff[h]>255) buff[h] = 255;
+						if(buff[h]<0) buff[h] = 0;
+					}
+					frame.put(i, j, buff);
+				}
+			}
+		}
+		
+		if(filtro.equals("Gamma")) {//modifico la gamma
+			System.out.println("Applico il filtro gamma");
+			//converto var in double
+			double gamma = Double.parseDouble(var);
+			for(int i=0;i<img.rows();i++) {
+				for(int j=0;j<img.cols();j++) {
+					double[] buff = img.get(i, j);
+					for(int h=0;h<buff.length;h++) {
+						double buf = buff[h];
+						buf = buf/255.0;
+						buff[h]= 255*(Math.pow(buf, gamma));
+						if(buff[h]>255) buff[h] = 255;
+						if(buff[h]<0) buff[h] = 0;
+					}
+					frame.put(i, j, buff);
+				}
+			}
+		}
+		
+		return frame;
+	}
+	
+	public Controller() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public BufferedImage bufferedImage(Mat m) {
+	    int type = BufferedImage.TYPE_BYTE_GRAY;
+	    if ( m.channels() > 1 ) { //se l'immagine è a colori
+	        type = BufferedImage.TYPE_3BYTE_BGR;
+	    }
+	    BufferedImage image = new BufferedImage(m.cols(),m.rows(), type);
+	    m.get(0,0,((DataBufferByte)image.getRaster().getDataBuffer()).getData()); // get all the pixels
+	    return image;
+	}
+
+}
