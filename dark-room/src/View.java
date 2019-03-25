@@ -38,6 +38,10 @@ public class View {
 	private JTextField textField_1;
 	private String c = new String("1");
 	private String var = new String("1");
+	private JLabel lbl = new JLabel(""); //foto iniziale
+	private boolean lblFotoIn = false;
+	private String FinalFoto = new String("NOFOTO");
+	private Controller controller = new Controller();
 	/**
 	 * Launch the application.
 	 */
@@ -81,13 +85,18 @@ public class View {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
-		JLabel lblBenvenutoInDarkroom = new JLabel("Benvenuto in Dark-Room");
-		lblBenvenutoInDarkroom.setBounds(360, 11, 170, 14);
+		JLabel lblBenvenutoInDarkroom = new JLabel("Benvenuto in FilteRoom");
+		lblBenvenutoInDarkroom.setBounds(393, 11, 131, 23);
 		frame.getContentPane().add(lblBenvenutoInDarkroom);
 		
 		JButton btnScegliUnaFoto = new JButton("Scegli una foto"); //scelgo il file
 		btnScegliUnaFoto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				if(!lblFotoIn) { //controllo che il label non sia stato creato
+					lbl.setBounds(10, 60, 430, 378);
+					frame.getContentPane().add(lbl);
+					lblFotoIn = true;
+				}
 				System.out.println("pulsante Scegli premuto");
 				JFileChooser file = new JFileChooser();
 		          file.setCurrentDirectory(new File(System.getProperty("user.home")));
@@ -102,14 +111,13 @@ public class View {
 		              File selectedFile = file.getSelectedFile();
 		              String path = selectedFile.getAbsolutePath();
 		              foto = path; //salvo l'indirizzo della foto
+		              FinalFoto = foto.substring(0, foto.length()-4); //prendo il path meno l'estensione
+		              FinalFoto = FinalFoto + "-finale.jpg";
 		              System.out.println("il path della fotoselezionata e': " + path);
 		              frame.getContentPane().getComponent(5).setVisible(false);
 		              System.out.println("Intro Rimossa");
-		              Controller controller = new Controller();
-		              JLabel lbl = new JLabel(""); //foto iniziale
-		      		  lbl.setBounds(10, 60, 430, 378);
-		      		  frame.getContentPane().add(lbl);
-		              controller.mostraFoto(lbl,path);
+		      		  controller.mostraFoto(lbl,path);
+		      		  
 		          }
 		          //nessun file selezionato
 		          else if(result == JFileChooser.CANCEL_OPTION){
@@ -118,11 +126,11 @@ public class View {
 			}
 		});
 		
-		btnScegliUnaFoto.setBounds(10, 479, 120, 23);
+		btnScegliUnaFoto.setBounds(27, 479, 120, 23);
 		frame.getContentPane().add(btnScegliUnaFoto);
 		
 		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Negativo", "Logaritmico", "Potenza", "Brightness", "Contrast", "Gamma"}));
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Negativo", "Logaritmico", "Potenza", "Brightness", "Contrast", "Gamma", "Laplaciano"}));
 		comboBox.setToolTipText("");
 		comboBox.setBounds(202, 480, 170, 20);
 		frame.getContentPane().add(comboBox);
@@ -142,7 +150,7 @@ public class View {
 		frame.getContentPane().add(lblScegliUnFiltro);
 		
 		JButton btnApplica = new JButton("Applica");
-		btnApplica.setBounds(819, 477, 89, 23);
+		btnApplica.setBounds(661, 479, 89, 23);
 		frame.getContentPane().add(btnApplica);
 		btnApplica.addActionListener(new ActionListener() { //applica
 
@@ -151,7 +159,6 @@ public class View {
 				//aggiorno il valore delle textfield
 				c = textField.getText();
 				var = textField_1.getText();
-				Controller controller = new Controller();
 				controller.mostraFoto((JLabel)frame.getContentPane().getComponent(6), foto, filtro, c, var);
 				System.out.println("foto finale mostrata");
 				
@@ -182,7 +189,7 @@ public class View {
 			}
 		});
 		textField.setText("1");
-		textField.setBounds(423, 480, 131, 20);
+		textField.setBounds(535, 480, 75, 20);
 		frame.getContentPane().add(textField);
 		textField.setColumns(10);
 		
@@ -194,17 +201,33 @@ public class View {
 			}
 		});
 		textField_1.setText("1");
-		textField_1.setBounds(632, 480, 131, 20);
+		textField_1.setBounds(403, 480, 65, 20);
 		frame.getContentPane().add(textField_1);
 		textField_1.setColumns(10);
 		
-		JLabel lblInserisciIlValore = new JLabel("Inserisci il valore della costante c");
-		lblInserisciIlValore.setBounds(396, 455, 210, 14);
+		JLabel lblInserisciIlValore = new JLabel("Parametro secondario");
+		lblInserisciIlValore.setBounds(518, 455, 131, 14);
 		frame.getContentPane().add(lblInserisciIlValore);
 		
-		JLabel lblInserisciIlValore_1 = new JLabel("Inserisci il valore del filtro");
-		lblInserisciIlValore_1.setBounds(630, 455, 149, 14);
+		JLabel lblInserisciIlValore_1 = new JLabel("Parametro principale");
+		lblInserisciIlValore_1.setBounds(393, 455, 120, 14);
 		frame.getContentPane().add(lblInserisciIlValore_1);
+		
+		JButton btnSalva = new JButton("Salva");
+		btnSalva.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) { //salva foto
+				if(FinalFoto.equals("NOFOTO")) System.out.println("Errore nel salvataggio");
+				else {
+					System.out.println("path finale: " + FinalFoto);
+					controller.SalvaFoto(FinalFoto);
+				
+				}
+				
+				
+			}
+		});
+		btnSalva.setBounds(800, 479, 89, 23);
+		frame.getContentPane().add(btnSalva);
 		
 	}
 }

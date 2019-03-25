@@ -31,6 +31,8 @@ import org.opencv.imgproc.Imgproc;
 
 public class Controller {
 	
+	
+	
 	//legge una foto da un path e la inserisce nel label
 	public void mostraFoto(JLabel label, String path) {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -49,6 +51,7 @@ public class Controller {
 	
 	public void mostraFoto(JLabel label, String path, String filtro, String c, String var) {
 		Mat img = this.applicaFiltro(filtro, path, c, var);
+		this.frame = img;
 		BufferedImage Bimg = bufferedImage(img);
 		ImageIcon imgI = new ImageIcon(Bimg);
 		label.setIcon((Icon) imgI);
@@ -85,7 +88,8 @@ public class Controller {
 					double[] buff = img.get(i, j);
 					for(int h=0;h<buff.length;h++) {
 						buff[h]=cc*Math.log(1+buff[h]);
-						if(buff[h]>255) buff[h] = 255;
+						if(buff[h]>255) buff[h] = 255.0;
+						if(buff[h]<0) buff[h] = 0.0;
 					}
 					frame.put(i, j, buff);
 				}
@@ -101,8 +105,9 @@ public class Controller {
 				for(int j=0;j<img.cols();j++) {
 					double[] buff = img.get(i, j);
 					for(int h=0;h<buff.length;h++) {
-						buff[h]=cc*Math.pow(buff[h], gamma);
-						if(buff[h]>255) buff[h] = 255;
+						buff[h]=cc*Math.pow(buff[h],gamma);
+						if(buff[h]>255) buff[h] = 255.0;
+						if(buff[h]<0) buff[h] = 0.0;
 					}
 					frame.put(i, j, buff);
 				}
@@ -118,8 +123,8 @@ public class Controller {
 					double[] buff = img.get(i, j);
 					for(int h=0;h<buff.length;h++) {
 						buff[h]=buff[h] + g;
-						if(buff[h]>255) buff[h] = 255;
-						if(buff[h]<0) buff[h] = 0;
+						if(buff[h]>255) buff[h] = 255.0;
+						if(buff[h]<0) buff[h] = 0.0;
 					}
 					frame.put(i, j, buff);
 				}
@@ -137,7 +142,7 @@ public class Controller {
 					for(int h=0;h<buff.length;h++) {
 						buff[h]= m*(buff[h]-127) +127;
 						if(buff[h]>255) buff[h] = 255;
-						if(buff[h]<0) buff[h] = 0;
+						if(buff[h]<0) buff[h] = 0.0;
 					}
 					frame.put(i, j, buff);
 				}
@@ -154,16 +159,30 @@ public class Controller {
 					for(int h=0;h<buff.length;h++) {
 						double buf = buff[h];
 						buf = buf/255.0;
-						buff[h]= 255*(Math.pow(buf, gamma));
-						if(buff[h]>255) buff[h] = 255;
-						if(buff[h]<0) buff[h] = 0;
+						buff[h]= 255.0*(Math.pow(buf, 1/gamma));
+						if(buff[h]>255) buff[h] = 255.0;
+						if(buff[h]<0) buff[h] = 0.0;
 					}
 					frame.put(i, j, buff);
 				}
 			}
 		}
 		
+		if(filtro.equals("Laplaciano")) {
+			System.out.println("Applico il filtro laplaciano");
+			//converto i parametri
+			double scale = Integer.parseInt(c);
+			int ksize = Integer.parseInt(var);
+			Imgproc.Laplacian(img, frame, img.depth(), ksize, scale);
+		}
+		
+		
 		return frame;
+	}
+	
+	
+	public void SalvaFoto(String path) {
+		Imgcodecs.imwrite(path,this.frame);
 	}
 	
 	public Controller() {
@@ -180,5 +199,7 @@ public class Controller {
 	    m.get(0,0,((DataBufferByte)image.getRaster().getDataBuffer()).getData()); // get all the pixels
 	    return image;
 	}
+	
+	private Mat frame;
 
 }
