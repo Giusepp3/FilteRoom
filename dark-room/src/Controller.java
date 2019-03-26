@@ -82,7 +82,7 @@ public class Controller {
 		if(filtro.equals("Logaritmico")) { //filtro logaritmico
 			System.out.println("Applico il filtro logaritmico");
 			//converto c in double
-			double cc = Double.parseDouble(c);
+			double cc = Double.parseDouble(var);
 			for(int i=0;i<img.rows();i++) {
 				for(int j=0;j<img.cols();j++) {
 					double[] buff = img.get(i, j);
@@ -101,6 +101,10 @@ public class Controller {
 			//converto c e var in double
 			double cc = Double.parseDouble(c);
 			double gamma = Double.parseDouble(var);
+			if(gamma<0) {
+				System.out.println("Parametro gamma non valido");
+				JOptionPane.showMessageDialog(null, "Il parametro gamma deve essere positivo!");
+			}
 			for(int i=0;i<img.rows();i++) {
 				for(int j=0;j<img.cols();j++) {
 					double[] buff = img.get(i, j);
@@ -136,6 +140,10 @@ public class Controller {
 			System.out.println("Applico il filtro contrasto");
 			//converto var in double
 			double m = Double.parseDouble(var);
+			if(m<0) {
+				System.out.println("Errore nel parametro m");
+				JOptionPane.showMessageDialog(null, "Il parametro deve essere maggiore o uguale a 0");
+			}
 			for(int i=0;i<img.rows();i++) {
 				for(int j=0;j<img.cols();j++) {
 					double[] buff = img.get(i, j);
@@ -173,7 +181,12 @@ public class Controller {
 			//converto i parametri
 			double scale = Integer.parseInt(c);
 			int ksize = Integer.parseInt(var);
-			Imgproc.Laplacian(img, frame, img.depth(), ksize, scale);
+			try {
+				Imgproc.Laplacian(img, frame, img.depth(), ksize, scale);
+			}catch(Exception e) {
+				System.out.println("Errore nel filtro Laplaciano: " + e.getMessage());
+				JOptionPane.showMessageDialog(null, "Parametri del filtro non validi!");
+			}
 		}
 		
 		

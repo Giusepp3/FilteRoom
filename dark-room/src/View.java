@@ -14,6 +14,7 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -216,7 +217,10 @@ public class View {
 		JButton btnSalva = new JButton("Salva");
 		btnSalva.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) { //salva foto
-				if(FinalFoto.equals("NOFOTO")) System.out.println("Errore nel salvataggio");
+				if(FinalFoto.equals("NOFOTO")) {
+					System.out.println("Errore nel salvataggio");
+					JOptionPane.showMessageDialog(null, "Nessuna foto selezionata!");
+				}
 				else {
 					System.out.println("path finale: " + FinalFoto);
 					controller.SalvaFoto(FinalFoto);
