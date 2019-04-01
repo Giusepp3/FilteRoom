@@ -131,7 +131,7 @@ public class View {
 		frame.getContentPane().add(btnScegliUnaFoto);
 		
 		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Negativo", "Logaritmico", "Potenza", "Brightness", "Contrast", "Gamma", "Laplaciano"}));
+		comboBox.setModel(new DefaultComboBoxModel(new String[] {"Negativo", "Logaritmico", "Potenza", "Brightness", "Contrast", "Gamma", "Laplaciano", "Gaussian", "B/N", "Misto"}));
 		comboBox.setToolTipText("");
 		comboBox.setBounds(202, 480, 170, 20);
 		frame.getContentPane().add(comboBox);

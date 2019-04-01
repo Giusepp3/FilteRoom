@@ -24,6 +24,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -189,6 +190,40 @@ public class Controller {
 			}
 		}
 		
+		if(filtro.equals("Gaussian")) {
+			System.out.println("applico il filtro Gaussiano");
+			double x = Double.parseDouble(var);
+			double y = x;
+			int s = Integer.parseInt(c);
+			System.out.println("i parametri sono: c -> " + c + " var -> " + var);
+			try {
+				Imgproc.GaussianBlur(img, frame, new Size(s,s), x, y);
+			} catch(Exception e) {
+				System.out.println("Errore nel filtro gaussiano: " + e.getMessage());
+				JOptionPane.showMessageDialog(null, "Parametri del filtro non validi!");
+			}
+		}
+		
+		if(filtro.equals("B/N")){
+			System.out.println("Applico il filtro Bianco e nero");
+			Imgproc.cvtColor(img, frame, Imgproc.COLOR_BGR2GRAY);
+		}
+		
+		if(filtro.equals("Misto")) {
+			System.out.println("Applico il filtro Misto");
+			int m = Integer.parseInt(var);
+			for(int i=0;i<img.rows();i++) {
+				for(int j=0;j<img.cols();j++) {
+					double[] buff = img.get(i, j);
+					if((i+j)%m==0) {
+						for(int h=0;h<buff.length;h++) {
+							buff[h] = 255.0 - buff[h];
+						}
+					}
+					frame.put(i, j, buff);
+				}
+			}
+		}
 		
 		return frame;
 	}
